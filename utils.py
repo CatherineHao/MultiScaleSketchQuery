@@ -52,6 +52,28 @@ def normalize_sketch(sketch_data):
 	normalized_sketch = list(zip(sketch_data['x'], sketch_data['y']))# tmp格式为[(x1,y1),(x2,y2)]
 	return normalized_sketch
 
+# 针对非段的'shape error'，为曼哈顿距离，输入为x[a,b],y[a,b]
+def ManHattenDist(x,y): 
+    return sum(map(lambda i,j:abs(i-j),x,y))
+
+def DTWDistanceWithW(s1, s2, w):  # w表示窗口大小
+    DTW = {}
+
+    w = max(w, abs(len(s1) - len(s2)))
+
+    for i in range(-1, len(s1)):
+        for j in range(-1, len(s2)):
+            DTW[(i, j)] = float('inf')
+    DTW[(-1, -1)] = 0
+
+    for i in range(len(s1)):
+        for j in range(max(0, i - w), min(len(s2), i + w)):
+            dist = (s1[i] - s2[j]) ** 2
+            DTW[(i, j)] = dist + min(DTW[(i - 1, j)], DTW[(i, j - 1)], DTW[(i - 1, j - 1)])
+
+    return np.sqrt(DTW[len(s1) - 1, len(s2) - 1])
+
+
 if __name__=="__main__":
 	path = "/home/haojianing/sketch/raw_sketch_data" # 文件夹目录
 
