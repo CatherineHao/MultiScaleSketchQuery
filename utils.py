@@ -85,6 +85,22 @@ def CalculateCosine(Y1, Y2):
     ZscoreY2 = zscore(Y2)
     return np.dot(ZscoreY1, ZscoreY2) / (np.linalg.norm(ZscoreY1) * np.linalg.norm(ZscoreY2))
 
+def ShapeError(Test_C,Test_Q,ComScale): # 输入应该为相同长度的sequence test_c = [(x1,y1),(x2,y2),(x3,y3)]
+    c_y = []
+    q_y = []
+    for i in range(ComScale):
+        c_y.append(Test_C[i][0]*Test_C[i][1])
+        q_y.append(Test_Q[i][0]*Test_Q[i][1])
+    height_c = max(c_y) - min(c_y)
+    height_q = max(q_y) - min(q_y)
+    global_y = height_c / height_q
+    R_y = height_c / global_y * height_q
+    ShapeError = 0
+    for i in range(ComScale):
+        ShapeError += abs((global_y * R_y * test_q[i][1] - test_c[i][1]) / height_c)
+    ShapeError = ShapeError / ComScale
+    return ShapeError
+
 if __name__=="__main__":
 	path = "/home/haojianing/sketch/raw_sketch_data" # 文件夹目录
 
