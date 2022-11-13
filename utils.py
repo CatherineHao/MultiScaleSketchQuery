@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import os
 import random
 import math
+from scipy.stats import pearsonr
+from scipy.stats import zscore
 
 def plot_time_series(time_series, img_file):
 	data_x = time_series['x']
@@ -73,6 +75,15 @@ def DTWDistanceWithW(s1, s2, w):  # w表示窗口大小
 
     return np.sqrt(DTW[len(s1) - 1, len(s2) - 1])
 
+def CalculatePearson(Y1, Y2):
+    ZscoreY1 = zscore(Y1)
+    ZscoreY2 = zscore(Y2)
+    return pearsonr(ZscoreY1, ZscoreY2)[0]
+
+def CalculateCosine(Y1, Y2):
+    ZscoreY1 = zscore(Y1)
+    ZscoreY2 = zscore(Y2)
+    return np.dot(ZscoreY1, ZscoreY2) / (np.linalg.norm(ZscoreY1) * np.linalg.norm(ZscoreY2))
 
 if __name__=="__main__":
 	path = "/home/haojianing/sketch/raw_sketch_data" # 文件夹目录

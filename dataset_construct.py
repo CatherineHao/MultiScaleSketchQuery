@@ -105,6 +105,30 @@ def convert_to_dataset(lttb_raw_data,derivative_sketch,QueryResults,QueryScale,S
     # print('tmp_dataset:',Final_dataset)
     return Final_dataset
 
+def plot_sketch_time_com(lttb_sketch,lttb_raw_data,QueryResults,QueryScale):
+    sketch_x = []
+    sketch_y = []
+    for tmp in range(len(lttb_sketch)):
+        sketch_x.append(lttb_sketch[tmp][0])
+        sketch_y.append(lttb_sketch[tmp][1])
+    for item in range (0,len(QueryResults)):
+        time_plot_x = []
+        time_plot_y = []
+        for q in range(QueryScale):
+            time_plot_x.append(lttb_raw_data[QueryResults[item][0]:QueryResults[item][0] + QueryScale][q][0])
+            time_plot_y.append(lttb_raw_data[QueryResults[item][0]:QueryResults[item][0] + QueryScale][q][1])
+        minx = min(time_plot_x)
+        maxx = max(time_plot_x)
+        fig=plt.figure()
+        sketch_fig = fig.subplots()
+        tim_fig = sketch_fig.twiny()  
+        plt.xlim(minx,maxx)
+        sketch_fig.plot(sketch_x,sketch_y,color='orange')
+        tim_fig.plot(time_plot_x,time_plot_y,color='blue')
+        name = str(sketch_file)
+        plt.savefig('../../ED_query_results/pic_sketch{}_sim{}.png'.format(name,Sim[item]))
+        plt.clf()
+
 lttb_thre = 17
 
 train_dataset = []
@@ -174,33 +198,13 @@ if __name__=="__main__":
                 # 导出对应文件，第一列，存储查询序列的c,l,第二列，查询到的数据SegementTime对应的y值,第三列存储对应的ED，第四列对应对应计算的sim
                 tmp_dataset = convert_to_dataset(lttb_raw_data,derivative_sketch,QueryResults,QueryScale,Sim)
                 # 绘制匹配的结果，QueryResults按照相似性进行了排序，绘制每一个对应的Pair,草图值+匹配的原始时间序列数据.命名为对应的草图+污染物+sim值
-                sketch_x = []
-                sketch_y = []
-                for tmp in range(len(lttb_sketch)):
-                    sketch_x.append(lttb_sketch[tmp][0])
-                    sketch_y.append(lttb_sketch[tmp][1])
-                for item in range (0,len(QueryResults)):
-                    time_plot_x = []
-                    time_plot_y = []
-                    for q in range(QueryScale):
-                        time_plot_x.append(lttb_raw_data[QueryResults[item][0]:QueryResults[item][0] + QueryScale][q][0])
-                        time_plot_y.append(lttb_raw_data[QueryResults[item][0]:QueryResults[item][0] + QueryScale][q][1])
-                    minx = min(time_plot_x)
-                    maxx = max(time_plot_x)
-                    fig=plt.figure()
-                    sketch_fig = fig.subplots()
-                    tim_fig = sketch_fig.twiny()  
-                    plt.xlim(minx,maxx)
-                    sketch_fig.plot(sketch_x,sketch_y,color='orange')
-                    tim_fig.plot(time_plot_x,time_plot_y,color='blue')
-                    name = str(sketch_file)
-                    plt.savefig('../../ED_query_results/pic_sketch{}_sim{}.png'.format(name,Sim[item]))
-                    plt.clf()
-                train_dataset.append(tmp_dataset)
+                # plot_sketch_time_com(lttb_sketch,lttb_raw_data,QueryResults,QueryScale)
+                
+                train_dataset = train_dataset + tmp_dataset
     #print('train_dataset:',train_dataset)
 
 # 数据集构建完成，最后一步，导出为csv文件
 name=['Sketch','MatchSeries','ED_dis','Sim']
 train_dataset_file = pd.DataFrame(columns=name,data=train_dataset)
 #len(TestData)
-train_dataset_file.to_csv('./TrainDataSet.csv',index=False)
+train_dataset_file.to_csv('../../train_dataset/TrainDataSet_so2.csv',index=False)
